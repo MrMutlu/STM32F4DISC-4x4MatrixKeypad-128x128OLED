@@ -1,0 +1,5 @@
+../Src/u8g2/u8x8_d_ssd1327.c:66:17:u8x8_ssd1327_8to32	5
+../Src/u8g2/u8x8_d_ssd1327.c:99:16:u8x8_d_ssd1327_96x96_generic	8
+../Src/u8g2/u8x8_d_ssd1327.c:279:9:u8x8_d_ssd1327_seeed_96x96	6
+../Src/u8g2/u8x8_d_ssd1327.c:400:9:u8x8_d_ssd1327_ea_w128128	6
+../Src/u8g2/u8x8_d_ssd1327.c:540:9:u8x8_d_ssd1327_midas_128x128	6

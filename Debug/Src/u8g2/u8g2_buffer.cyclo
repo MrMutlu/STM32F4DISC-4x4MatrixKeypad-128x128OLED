@@ -1,0 +1,9 @@
+../Src/u8g2/u8g2_buffer.c:40:6:u8g2_ClearBuffer	1
+../Src/u8g2/u8g2_buffer.c:51:13:u8g2_send_tile_row	1
+../Src/u8g2/u8g2_buffer.c:72:13:u8g2_send_buffer	3
+../Src/u8g2/u8g2_buffer.c:93:6:u8g2_SendBuffer	1
+../Src/u8g2/u8g2_buffer.c:100:6:u8g2_SetBufferCurrTileRow	1
+../Src/u8g2/u8g2_buffer.c:107:6:u8g2_FirstPage	2
+../Src/u8g2/u8g2_buffer.c:116:9:u8g2_NextPage	3
+../Src/u8g2/u8g2_buffer.c:153:6:u8g2_UpdateDisplayArea	3
+../Src/u8g2/u8g2_buffer.c:178:6:u8g2_UpdateDisplay	1

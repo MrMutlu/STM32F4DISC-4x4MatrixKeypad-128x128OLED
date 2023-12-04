@@ -1,0 +1,8 @@
+../Src/u8g2/u8x8_d_st75256.c:157:16:u8x8_d_st75256_256x128_generic	8
+../Src/u8g2/u8x8_d_st75256.c:334:9:u8x8_d_st75256_jlx256128	6
+../Src/u8g2/u8x8_d_st75256.c:468:9:u8x8_d_st75256_jlx25664	6
+../Src/u8g2/u8x8_d_st75256.c:601:9:u8x8_d_st75256_jlx172104	12
+../Src/u8g2/u8x8_d_st75256.c:793:9:u8x8_d_st75256_jlx240160	12
+../Src/u8g2/u8x8_d_st75256.c:988:9:u8x8_d_st75256_jlx256160	12
+../Src/u8g2/u8x8_d_st75256.c:1182:9:u8x8_d_st75256_jlx256160_alt	12
+../Src/u8g2/u8x8_d_st75256.c:1373:9:u8x8_d_st75256_jlx19296	12

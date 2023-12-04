@@ -1,0 +1,4 @@
+../Src/u8g2/u8g2_box.c:42:6:u8g2_DrawBox	3
+../Src/u8g2/u8g2_box.c:63:6:u8g2_DrawFrame	2
+../Src/u8g2/u8g2_box.c:85:6:u8g2_DrawRBox	4
+../Src/u8g2/u8g2_box.c:144:6:u8g2_DrawRFrame	4
