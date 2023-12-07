@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "u8g2/u8g2.h"
 #include  "stdbool.h"
+#include <string.h>
 #include  <stdio.h>
 /* USER CODE END Includes */
 
@@ -36,11 +37,7 @@ GPIO_TypeDef* COL_1_Port = GPIOA;
 GPIO_TypeDef* COL_2_Port = GPIOA;
 GPIO_TypeDef* COL_3_Port = GPIOA;
 GPIO_TypeDef* COL_4_Port = GPIOA;
-#ifdef __GNUC__
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -53,30 +50,21 @@ GPIO_TypeDef* COL_4_Port = GPIOA;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c1;
-
 SPI_HandleTypeDef hspi2;
 
-UART_HandleTypeDef huart2;
-
 /* USER CODE BEGIN PV */
-uint8_t numBuffer[4];
-uint8_t numABuffer[4];
-uint8_t numBBuffer[4];
-uint8_t numCBuffer[4];
-uint8_t numDBuffer[4];
+char numBuffer[4];
+char numABuffer[4];
+char numBBuffer[4];
+char numCBuffer[4];
+char numDBuffer[4];
 uint8_t bufferIndex = 0;
-uint8_t bufferAIndex = 0;
-uint8_t bufferBIndex = 0;
-uint8_t bufferCIndex = 0;
-uint8_t bufferDIndex = 0;
 
 uint8_t buttonPressed = 0;
 uint8_t button2Pressed = 0;
 
 extern uint8_t u8x8_stm32_gpio_and_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);
 extern uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);
-extern uint8_t u8x8_byte_stm32_hw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);
 bool firstTime = false;
 static u8g2_t u8g2;
 /* USER CODE END PV */
@@ -84,9 +72,7 @@ static u8g2_t u8g2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
-static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 
@@ -96,6 +82,7 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 void processKeyPress(char key) {
     // Clear the buffer and set common settings
     u8g2_SetFontMode(&u8g2, 0);  // Transparent
@@ -115,16 +102,17 @@ void processKeyPress(char key) {
         case '0':
             if (bufferIndex < 4) {
                 numBuffer[bufferIndex++] = key;
+                numBuffer[bufferIndex] = '\0';  // Null-terminate the string
                 u8g2_ClearBuffer(&u8g2);
                 u8g2_SendBuffer(&u8g2);
-                u8g2_DrawStr(&u8g2, 60, 60, &key);
+                u8g2_DrawUTF8(&u8g2, 60, 60, numBuffer);
                 u8g2_SendBuffer(&u8g2);
             }
             break;
         case '*':
             bufferIndex = 0;
             u8g2_ClearBuffer(&u8g2);
-            u8g2_DrawStr(&u8g2, 60, 60, "DELETED! ");
+            u8g2_DrawUTF8(&u8g2, 60, 60, "DELETED! ");
             u8g2_SendBuffer(&u8g2);
             break;
         case '#':
@@ -134,81 +122,72 @@ void processKeyPress(char key) {
                 numBuffer[bufferIndex] = '\0';  // Set the last digit to null character
                 u8g2_ClearBuffer(&u8g2);
                 u8g2_SendBuffer(&u8g2);
-                u8g2_DrawStr(&u8g2, 60, 60, (char*)numBuffer);  // Redraw the buffer without the last digit
+                u8g2_DrawUTF8(&u8g2, 60, 60, numBuffer);  // Redraw the buffer without the last digit
                 u8g2_SendBuffer(&u8g2);
             }
             break;
         case 'A':
         	if(bufferIndex == 4){
-        		bufferAIndex = 0;
 
         	    for (int i = 0; i < 4; ++i) {
         	        numABuffer[i] = numBuffer[i];
         	    }
-                for (int i = 0; i < 4; ++i) {
-                    numBuffer[i] = 0;  // Set to null character
-                }
                 u8g2_ClearBuffer(&u8g2);
-                u8g2_DrawStr(&u8g2, 5, 60, "A SAVED ");
+                u8g2_DrawUTF8(&u8g2, 5, 60, "A SAVED ");
                 u8g2_SendBuffer(&u8g2);
                 bufferIndex = 0;
-                printf("numABuffer after saving: %s\n", numABuffer);
-                printf("numBuffer after saving: %s\n", numBuffer);
+                memset(numBuffer, 0, sizeof(numBuffer));
+        		numABuffer[4] = '\0';
+
         	}
             break;
         case 'B':
         	if(bufferIndex == 4){
-        		bufferBIndex = 0;
 
         	    for (int i = 0; i < 4; ++i) {
         	        numBBuffer[i] = numBuffer[i];
         	    }
-                for (int i = 0; i < 4; ++i) {
-                    numBuffer[i] = 0;  // Set to null character
-                }
+
                 u8g2_ClearBuffer(&u8g2);
-                u8g2_DrawStr(&u8g2, 50, 50, "B SAVED ");
+                u8g2_DrawUTF8(&u8g2, 5, 50, "B SAVED ");
                 u8g2_SendBuffer(&u8g2);
                 bufferIndex = 0;
-                printf("numABuffer after saving: %s\n", numBBuffer);
-                printf("numBuffer after saving: %s\n", numBuffer);
+                memset(numBuffer, 0, sizeof(numBuffer));
+        		numBBuffer[4] = '\0';
+
         	}
             break;
         case 'C':
         	if(bufferIndex == 4){
-        		bufferCIndex = 0;
 
         	    for (int i = 0; i < 4; ++i) {
         	        numCBuffer[i] = numBuffer[i];
         	    }
-                for (int i = 0; i < 4; ++i) {
-                    numBuffer[i] = 0;  // Set to null character
-                }
+
                 u8g2_ClearBuffer(&u8g2);
-                u8g2_DrawStr(&u8g2, 50, 50, "C SAVED ");
+                u8g2_DrawUTF8(&u8g2, 5, 50, "C SAVED ");
                 u8g2_SendBuffer(&u8g2);
                 bufferIndex = 0;
-                printf("numABuffer after saving: %s\n", numCBuffer);
-                printf("numBuffer after saving: %s\n", numBuffer);
+                memset(numBuffer, 0, sizeof(numBuffer));
+        		numCBuffer[4] = '\0';
+
 
         	}
             break;
         case 'D':
         	if(bufferIndex == 4){
-        		bufferDIndex = 0;
 
         	    for (int i = 0; i < 4; ++i) {
         	        numDBuffer[i] = numBuffer[i];
         	    }
-                for (int i = 0; i < 4; ++i) {
-                    numBuffer[i] = 0;  // Set to null character
-                }
+
                 u8g2_ClearBuffer(&u8g2);
-                u8g2_DrawStr(&u8g2, 50, 50, "D SAVED ");
+                u8g2_DrawUTF8(&u8g2, 5, 50, "D SAVED ");
                 u8g2_SendBuffer(&u8g2);
                 bufferIndex = 0;
-                printf("numABuffer after saving: %s\n", numDBuffer);
-                printf("numBuffer after saving: %s\n", numBuffer);
+                memset(numBuffer, 0, sizeof(numBuffer));
+        		numDBuffer[4] = '\0';
+
         	}
             break;
         default:
@@ -218,12 +197,13 @@ void processKeyPress(char key) {
     }
     if(bufferIndex == 4){
     u8g2_ClearBuffer(&u8g2);
-    u8g2_DrawStr(&u8g2, 32, 40, (char*)numBuffer);
-    u8g2_DrawStr(&u8g2, 8, 50, "PRESS * TO DELETE ALL ");
-    u8g2_DrawStr(&u8g2, 8, 60, "OR PRESS A/B/C/D ");
-    u8g2_DrawStr(&u8g2, 8, 70, "OR # TO DELETE ");
-    u8g2_DrawStr(&u8g2, 8, 80, "LAST NUMBER ");
+    u8g2_DrawUTF8(&u8g2, 32, 40, numBuffer);
+    u8g2_DrawUTF8(&u8g2, 8, 50, "PRESS * TO DELETE ALL ");
+    u8g2_DrawUTF8(&u8g2, 8, 60, "OR PRESS A/B/C/D ");
+    u8g2_DrawUTF8(&u8g2, 8, 70, "OR # TO DELETE ");
+    u8g2_DrawUTF8(&u8g2, 8, 80, "LAST NUMBER ");
     u8g2_SendBuffer(&u8g2);
+
     }
 
 }
@@ -238,22 +218,22 @@ void showKeyPress(char key) {
 
         case 'A':
             u8g2_ClearBuffer(&u8g2);
-            u8g2_DrawStr(&u8g2, 56, 50, (char*)numABuffer);
+            u8g2_DrawUTF8(&u8g2, 56, 50, numABuffer);
             u8g2_SendBuffer(&u8g2);
             break;
         case 'B':
             u8g2_ClearBuffer(&u8g2);
-            u8g2_DrawStr(&u8g2, 56, 50, (char*)numBBuffer);
+            u8g2_DrawUTF8(&u8g2, 56, 50, numBBuffer);
             u8g2_SendBuffer(&u8g2);
             break;
         case 'C':
             u8g2_ClearBuffer(&u8g2);
-            u8g2_DrawStr(&u8g2, 56, 50, (char*)numCBuffer);
+            u8g2_DrawUTF8(&u8g2, 56, 50, numCBuffer);
             u8g2_SendBuffer(&u8g2);
             break;
         case 'D':
             u8g2_ClearBuffer(&u8g2);
-            u8g2_DrawStr(&u8g2, 56, 50, (char*)numDBuffer);
+            u8g2_DrawUTF8(&u8g2, 56, 50, numDBuffer);
             u8g2_SendBuffer(&u8g2);
             break;
         default:
@@ -348,9 +328,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C1_Init();
   MX_SPI2_Init();
-  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 	u8g2_Setup_ssd1327_ea_w128128_f(&u8g2, U8G2_R0, u8x8_byte_stm32_hw_spi, u8x8_stm32_gpio_and_delay);
 	u8g2_InitDisplay(&u8g2);
@@ -358,11 +336,10 @@ int main(void)
     u8g2_SetFontMode(&u8g2, 0);  // Transparent
     u8g2_SetFontDirection(&u8g2, 0);
     u8g2_SetFont(&u8g2, u8g2_font_6x12_tr);
-    u8g2_DrawStr(&u8g2, 8, 30, "Choose 4 numbers");
-    u8g2_DrawStr(&u8g2, 8, 60, "Click White Button");
-    u8g2_DrawStr(&u8g2, 8, 90, "To Start!");
+    u8g2_DrawUTF8(&u8g2, 8, 30, "Choose 4 numbers");
+    u8g2_DrawUTF8(&u8g2, 8, 60, "Click White Button");
+    u8g2_DrawUTF8(&u8g2, 8, 90, "To Start!");
     u8g2_SendBuffer(&u8g2);
-    printf("hello world");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -370,18 +347,13 @@ int main(void)
   while (1)
   {
 
+      key_pressed = keypad_scan();
+
 	    if (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_15)) {
 	        // Button is pressed
-	    	if(!firstTime){
-	    		firstTime = 1;
-	            u8g2_ClearBuffer(&u8g2);
-	            u8g2_SendBuffer(&u8g2);
 
-	    	}
 	        if (!buttonPressed) {
 	            buttonPressed = 1;  // Set the flag
-
-	            key_pressed = keypad_scan();
 	            processKeyPress(key_pressed);
 	        }
 	    } else {
@@ -393,11 +365,9 @@ int main(void)
 
 	        if (!button2Pressed) {
 	            button2Pressed = 1;  // Set the flag
-	            u8g2_ClearBuffer(&u8g2);
-	            u8g2_SendBuffer(&u8g2);}
-	            key_pressed = keypad_scan();
-	            showKeyPress(key_pressed);
 
+	            showKeyPress(key_pressed);
+	        	}
 	    } else {
 	        button2Pressed = 0;  // Reset the flag when the button is released
 	    }
@@ -457,40 +427,6 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief I2C1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_I2C1_Init(void)
-{
-
-  /* USER CODE BEGIN I2C1_Init 0 */
-
-  /* USER CODE END I2C1_Init 0 */
-
-  /* USER CODE BEGIN I2C1_Init 1 */
-
-  /* USER CODE END I2C1_Init 1 */
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
-  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C1_Init 2 */
-
-  /* USER CODE END I2C1_Init 2 */
-
-}
-
-/**
   * @brief SPI2 Initialization Function
   * @param None
   * @retval None
@@ -525,39 +461,6 @@ static void MX_SPI2_Init(void)
   /* USER CODE BEGIN SPI2_Init 2 */
 
   /* USER CODE END SPI2_Init 2 */
-
-}
-
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
 
 }
 
@@ -628,11 +531,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-PUTCHAR_PROTOTYPE
-{
-  HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-  return ch;
-}
+
 
 /* USER CODE END 4 */
 

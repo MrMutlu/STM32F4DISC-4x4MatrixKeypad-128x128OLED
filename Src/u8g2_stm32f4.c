@@ -13,7 +13,7 @@
 #define TX_TIMEOUT		100
 
 extern SPI_HandleTypeDef hspi2;
-extern I2C_HandleTypeDef hi2c1;
+//extern I2C_HandleTypeDef hi2c1;
 
 uint8_t u8x8_stm32_gpio_and_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
@@ -72,10 +72,10 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 	}
 	return 1;
 }
-
+/*
 uint8_t u8x8_byte_stm32_hw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
-	/* u8g2/u8x8 will never send more than 32 bytes between START_TRANSFER and END_TRANSFER */
+//	 u8g2/u8x8 will never send more than 32 bytes between START_TRANSFER and END_TRANSFER
 	static uint8_t buffer[32];
 	static uint8_t buf_idx;
 	uint8_t *data;
@@ -92,7 +92,7 @@ uint8_t u8x8_byte_stm32_hw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 		}
 		break;
 	case U8X8_MSG_BYTE_INIT:
-		/* add your custom code to init i2c subsystem */
+//		 add your custom code to init i2c subsystem
 		break;
 	case U8X8_MSG_BYTE_SET_DC:
 		break;
@@ -107,3 +107,4 @@ uint8_t u8x8_byte_stm32_hw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 	}
 	return 1;
 }
+*/
